@@ -5,11 +5,9 @@ public class Genome {
 
 	public Genome(double[] genes) {
 		this.genes = new double[genes.length];
-		
+
 		for (int i = 0; i < genes.length; i++) {
-			if (Variables.GENE_BOUNDS[i].contains(genes[i])) {
-				this.genes[i] = genes[i];
-			}
+			this.genes[i] = Variables.GENE_BOUNDS[i].clamp(genes[i]);
 		}
 	}
 
@@ -26,8 +24,8 @@ public class Genome {
 		return genes.length;
 	}
 
-	public Genome combine(Genome other) {
-		return this.crossover(other).mutate();
+	public Genome combine(Genome other, double mutationRate) {
+		return this.crossover(other).mutate(mutationRate);
 	}
 
 	private Genome crossover(Genome other) {
@@ -48,13 +46,12 @@ public class Genome {
 		return new Genome(childGenes);
 	}
 
-	private Genome mutate() {
+	private Genome mutate(double mutationRate) {
 		double[] mutatedGenes = new double[this.genomeSize()];
 		for (int i = 0; i < this.genomeSize(); i++) {
 			mutatedGenes[i] = this.getGene(i);
-
 			// Randomly selects genes to mutate
-			if (Math.random() < Variables.MUTATION_RATE) {
+			if (Math.random() < mutationRate) {
 				// Adds or subtracts up to MUTATION_FACTOR from the mutated gene
 				mutatedGenes[i] += ((Math.random() * 2) - 1) * Variables.MUTATION_FACTOR;
 			}
@@ -62,7 +59,7 @@ public class Genome {
 
 		return new Genome(mutatedGenes);
 	}
-	
+
 	public String toString() {
 		return Arrays.toString(genes);
 	}

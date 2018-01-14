@@ -22,8 +22,8 @@ public class Organism implements Comparable<Organism> {
 		this.genome = new Genome(genes);
 	}
 	
-	public Organism reproduce(Organism o) {
-		Genome c = this.genome.combine(o.getGenome());
+	public Organism reproduce(Organism o, double mutationRate) {
+		Genome c = this.genome.combine(o.getGenome(), mutationRate);
 		return new Organism(c);		
 	}
 

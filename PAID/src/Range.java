@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.Arrays;
+
 // Simple container for a range of numbers with a minimum and maximum.
 public class Range {
 	private double min;
@@ -18,7 +21,7 @@ public class Range {
 		return (max + min) / 2;
 	}
 
-	// Returns the difference between the max and the min.
+	// Returns the difference between the max and min
 	public double getSize() {
 		return max - min;
 	}
@@ -30,7 +33,16 @@ public class Range {
 	public double getMax() {
 		return max;
 	}
-	
+
+	public double clamp(double value) {
+		if (value > max) {
+			return max;
+		} else if (value < min) {
+			return min;
+		}
+		return value;
+	}
+
 	// Chooses a random number within the range.
 	public double getRandom() {
 		return min + (Math.random() * this.getSize());
