@@ -4,22 +4,22 @@ public class Organism implements Comparable<Organism> {
 	private double fitness;
 
 	// Generate random organism within the search space
-	public Organism(Range[] bounds) {
+	public Organism(Range[] bounds, Range[] geneBounds) {
 		double[] genes = new double[bounds.length];
 
 		for (int i = 0; i < genes.length; i++) {
 			genes[i] = bounds[i].getRandom();
 		}
 
-		this.genome = new Genome(genes);
+		this.genome = new Genome(genes, geneBounds);
 	}
 
 	public Organism(Genome genome) {
 		this.genome = genome;
 	}
 
-	public Organism(double[] genes) {
-		this.genome = new Genome(genes);
+	public Organism(double[] genes, Range[] geneBounds) {
+		this.genome = new Genome(genes, geneBounds);
 	}
 	
 	public Organism reproduce(Organism o, double mutationRate) {

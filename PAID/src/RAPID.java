@@ -1,24 +1,30 @@
 import java.util.Arrays;
 
-public class PAIDMain {
-	public static void main(String[] args) {
+public class RAPID {
+	private RAPIDSettings settings;
+	
+	public RAPID(RAPIDSettings settings) {
+		this.settings = settings;
+	}
+	
+	public void run() {
 		// Initialize population
-		Organism[] sample = new Organism[Variables.POPULATION_SIZE];
-		if (Variables.USE_INITIAL) {
-			PAIDMain.initialize(sample, Variables.INITIAL);
+		Organism[] sample = new Organism[settings.populationSize];
+		if (settings.initialValues != null) {
+			this.initialize(sample, settings.initialValues);
 		} else {
-			PAIDMain.initialize(sample);
+			this.initialize(sample);
 		}
 		System.out.println("Population initialized!");
 
 		double lastMaxFit = 0;
 		// Run through environment for multiple generations
-		for (int i = 0; i < Variables.NUM_GENERATIONS; i++) {
+		for (int i = 0; i < settings.numGenerations; i++) {
 			// Generate fitness for each organism
-			PAIDMain.runEnvironment(sample);
-
+			this.runEnvironment(sample);
+			
 			// Display average fitness and max fitness
-			if (i % (Variables.NUM_GENERATIONS / 10) == 0) {
+			if (i % (settings.numGenerations / 10) == 0) {
 				double aFit = 0;
 				for (Organism o : sample) {
 					aFit += o.getFitness();
@@ -29,68 +35,68 @@ public class PAIDMain {
 			}
 
 			// Check for stagnating population
-			boolean stagnating = sample[0].getFitness() <= lastMaxFit + Variables.STAGNATION_ERROR
-					&& sample[0].getFitness() >= lastMaxFit - Variables.STAGNATION_ERROR;
+			boolean stagnating = sample[0].getFitness() <= lastMaxFit + settings.stagnationError
+					&& sample[0].getFitness() >= lastMaxFit - settings.stagnationError;
 			lastMaxFit = sample[0].getFitness();
 			// Reproduce organisms with highest fitness
 			if (stagnating) {
 				// If sample is stagnating
-				sample = PAIDMain.reproduce(sample, Variables.ACCELERATED_MUTATION_RATE);
+				sample = this.reproduce(sample, settings.acceleratedMutationRate);
 			} else {
 				// If sample is not stagnating
-				sample = PAIDMain.reproduce(sample, Variables.MUTATION_RATE);
+				sample = this.reproduce(sample, settings.mutationRate);
 			}
 
 		}
-		PAIDMain.runEnvironment(sample);
+		this.runEnvironment(sample);
 
 		Arrays.sort(sample);
 		System.out.println("\nTop Organisms (Population: " + sample.length + ")");
 		System.out.print("1. " + sample[0] + "; ");
-		for (int i = 1; i < Variables.PRINT_LENGTH; i++) {
+		for (int i = 1; i < settings.PRINT_LENGTH; i++) {
 			System.out.println();
 			System.out.print((i + 1) + ". " + sample[i] + "; ");
 		}
 	}
 
-	private static void initialize(Organism[] organisms, Range[] initialValues) {
+	private void initialize(Organism[] organisms, Range[] initialValues) {
 		for (int i = 0; i < organisms.length; i++) {
-			organisms[i] = new Organism(initialValues);
+			organisms[i] = new Organism(initialValues, settings.geneBounds);
 		}
 	}
 
-	private static void initialize(Organism[] organisms) {
+	private void initialize(Organism[] organisms) {
 		// Pick random gene values from the search space to initialize the population.
-		PAIDMain.initialize(organisms, Variables.GENE_BOUNDS);
+		this.initialize(organisms, settings.geneBounds);
 	}
 
 	// Run through environment and assign fitness
-	private static void runEnvironment(Organism[] o) {
+	private void runEnvironment(Organism[] o) {
 		for (int i = 0; i < o.length; i++) {
 			Genome g = o[i].getGenome();
 			double cumulativeError = 0;
 			for (int j = 0; j < g.genomeSize(); j++) {
-				cumulativeError += 2 * Math.pow(g.getGene(j), 3) - 3 * Math.pow(g.getGene(j), 2) + g.getGene(j);
+				cumulativeError += g.getGene(j);
 			}
 
-			o[i].setFitness(Variables.FITNESS(cumulativeError));
+			o[i].setFitness(settings.FITNESS(cumulativeError));
 		}
 		Arrays.sort(o);
 	}
 
 	// Pick organisms to reproduce
-	private static Organism[] reproduce(Organism[] o, double mutationRate) {
+	private Organism[] reproduce(Organism[] o, double mutationRate) {
 		// Cull organisms not fit to reproduce
-		Organism[] survivors = new Organism[Variables.POPULATION_SIZE - Variables.BOTTLENECK_SIZE];
+		Organism[] survivors = new Organism[settings.populationSize - settings.bottleneckSize];
 		for (int i = 0; i < survivors.length; i++) {
 			survivors[i] = o[i];
 		}
 		o = survivors;
 
 		// Create new generation of organisms
-		Organism[] nextGen = new Organism[Variables.POPULATION_SIZE];
+		Organism[] nextGen = new Organism[settings.populationSize];
 		int i = 0;
-		while (i < Variables.POPULATION_SIZE) {
+		while (i < settings.populationSize) {
 			// Each organism reproduces with another random organism from the surviving pool
 			// until population limit is reached
 
@@ -101,7 +107,7 @@ public class PAIDMain {
 			Range range = new Range(0, pickList.length - 1);
 			int w = 0;
 			for (int j = 0; j < pickList.length; j++) {
-				if (j == i % (Variables.POPULATION_SIZE - Variables.BOTTLENECK_SIZE)) {
+				if (j == i % (settings.populationSize - settings.bottleneckSize)) {
 					w++;
 				}
 				pickList[j] = w;

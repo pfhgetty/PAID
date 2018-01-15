@@ -2,12 +2,13 @@ import java.util.Arrays;
 
 public class Genome {
 	private double[] genes;
+	private Range[] geneBounds;
 
-	public Genome(double[] genes) {
+	public Genome(double[] genes, Range[] geneBounds) {
 		this.genes = new double[genes.length];
-
+		this.geneBounds = geneBounds;
 		for (int i = 0; i < genes.length; i++) {
-			this.genes[i] = Variables.GENE_BOUNDS[i].clamp(genes[i]);
+			this.genes[i] = geneBounds[i].clamp(genes[i]);
 		}
 	}
 
@@ -43,7 +44,7 @@ public class Genome {
 				childGenes[i] = other.getGene(i);
 			}
 		}
-		return new Genome(childGenes);
+		return new Genome(childGenes, geneBounds);
 	}
 
 	private Genome mutate(double mutationRate) {
@@ -51,13 +52,13 @@ public class Genome {
 		for (int i = 0; i < this.genomeSize(); i++) {
 			mutatedGenes[i] = this.getGene(i);
 			// Randomly selects genes to mutate
-			if (Math.random() < mutationRate) {
+			if (Math.random() < mutationRate) {				
 				// Adds or subtracts up to MUTATION_FACTOR from the mutated gene
-				mutatedGenes[i] += ((Math.random() * 2) - 1) * Variables.MUTATION_FACTOR;
+				mutatedGenes[i] = geneBounds[i].getRandom();
 			}
 		}
 
-		return new Genome(mutatedGenes);
+		return new Genome(mutatedGenes, geneBounds);
 	}
 
 	public String toString() {
