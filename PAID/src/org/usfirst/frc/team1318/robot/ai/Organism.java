@@ -1,3 +1,4 @@
+package org.usfirst.frc.team1318.robot.ai;
 
 public class Organism implements Comparable<Organism> {
 	private Genome genome;

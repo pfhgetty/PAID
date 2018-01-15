@@ -1,3 +1,4 @@
+package org.usfirst.frc.team1318.robot.ai;
 
 public class RAPIDMain {
 	public static void main(String[] args) {
